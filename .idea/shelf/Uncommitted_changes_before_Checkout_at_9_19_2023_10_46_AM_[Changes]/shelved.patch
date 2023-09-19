@@ -1,0 +1,43 @@
+Index: converter.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import networkx as nx\r\nimport csv\r\nimport numpy as np\r\n\r\ndef convertToGraph(filepath):\r\n    net = nx.MultiDiGraph()\r\n    with open(filepath, newline='') as csvfile:\r\n        csvreader = csv.reader(csvfile, delimiter=',')\r\n        for row in csvreader:\r\n            if row[6] != \"Forbidden\":\r\n                net.add_edge(int(row[2]), int(row[3]), float(row[4]), wkt=row[11], type=row[6])\r\n            if row[7] != \"Forbidden\":\r\n                net.add_edge(int(row[3]), int(row[2]), float(row[4]), wkt=row[11], type=row[7])\r\n    return net\r\n\r\n\r\n\r\nnet = convertToGraph(\"data\\\\edgesNoKey.csv\")\r\n# print([i for i in net.neighbors(49724252)])\r\n\r\n\r\n\r\n\r\n# Define a matrix\r\n# A = np.array([[1, 2, 3],\r\n#               [4, 5, 6],\r\n#               [7, 8, 9]])\r\n\r\nA = np.array([[0.2, 0.1],\r\n             [0.8, 0.9]])\r\n\r\nB = np.array([[1,0],\r\n              [0,1]])\r\n\r\n\r\nC = np.subtract(A,B)\r\nprint(C)\r\nD = [-C[0][1], C[0][0]];\r\nprint(D)\r\n# Perform SVD\r\nU, S, V = np.linalg.svd(A)\r\n\r\n# U, S, and V are the factorized matrices\r\nprint(\"U:\")\r\nprint(U)\r\n\r\nprint(\"\\nS:\")\r\nprint(S)\r\n\r\nprint(\"\\nV:\")\r\nprint(V)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/converter.py b/converter.py
+--- a/converter.py	
++++ b/converter.py	
+@@ -20,32 +20,3 @@
+ 
+ 
+ 
+-
+-# Define a matrix
+-# A = np.array([[1, 2, 3],
+-#               [4, 5, 6],
+-#               [7, 8, 9]])
+-
+-A = np.array([[0.2, 0.1],
+-             [0.8, 0.9]])
+-
+-B = np.array([[1,0],
+-              [0,1]])
+-
+-
+-C = np.subtract(A,B)
+-print(C)
+-D = [-C[0][1], C[0][0]];
+-print(D)
+-# Perform SVD
+-U, S, V = np.linalg.svd(A)
+-
+-# U, S, and V are the factorized matrices
+-print("U:")
+-print(U)
+-
+-print("\nS:")
+-print(S)
+-
+-print("\nV:")
+-print(V)
