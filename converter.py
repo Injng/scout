@@ -23,11 +23,26 @@ A = np.array([[0.2, 0.1, 0],
               [0, 0, 0.9]])
 def major_eigenvalue(A):
 # print(np.linalg.eigvals(A))
-    c = A.length
     a = np.linalg.eig(A)
-    b = a.eigenvalues
-    Index = a.index(1)
+    b = list(a.eigenvalues)
+    t = list(a.eigenvectors)
+
+    Index = 0
+    nume = len(a)
+    for i in range(nume):
+        if ((b[i] -1)* (b[i] -1)<1):
+            Index = i
+
     majorvector = []
-    for i in range(c):
-        majorvector[i] = b[i][Index]
-    return majorvector;
+    leng = len(b)
+    for i in range(leng):
+        majorvector.append(t[i][Index])
+    return majorvector
+
+
+a = np.linalg.eig(A)
+b = list(a.eigenvalues)
+
+t = list(a.eigenvectors)
+print(t)
+print(major_eigenvalue(A))
