@@ -49,9 +49,27 @@ def diff_in_potential(Current, ideal):
 def read_csv_file(file_path):
     with open(file_path, 'r') as file:
         csv_reader = csv.reader(file)
+        list = []
         for row in csv_reader:
-            print(row)
-
+            list.append(row)
+            # print(row)
+        return list
 # Example usage:
-file_path = 'example.csv'  # Replace with the path to your CSV file
-read_csv_file(file_path)
+def need_for_each_station(day, AM_PM):#the day is a string monday, tuesday ... time is PM Peak, AM Peak, Evening, Midday
+    file_path = 'data/' + day + '_exits.csv'  # Replace with the path to your CSV file
+    list = read_csv_file(file_path)
+    ret =[]
+    for i in list:
+        r = []
+        if (i[6] == AM_PM):
+            r .append(i[5])
+            need = int(i[-1])-int(i[-2])
+            r.append(need)
+        ret.append(r)
+    print(ret)
+    return ret
+
+
+
+
+need_for_each_station('monday','PM Peak (3pm-7pm)')
