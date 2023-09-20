@@ -39,10 +39,12 @@ def major_eigenvalue(A):
         majorvector.append(t[i][Index])
     return majorvector
 
+def diff_in_potential(Current, ideal):
+    diff = []
+    len = len(ideal)
+    for i in range(len):
+        diff.append(ideal - Current)
+    return diff
 
-a = np.linalg.eig(A)
-b = list(a.eigenvalues)
 
-t = list(a.eigenvectors)
-print(t)
-print(major_eigenvalue(A))
+
