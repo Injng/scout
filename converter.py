@@ -84,11 +84,12 @@ def convert_to_graph(filepath):
     return net
 
 # takes a list of ubers and a dictionary of stations with the node id being the key and the value being the number of ubers needed
-def get_shortestpaths(ubers, stations):
+def get_shortestpaths(ubersr, stations):
     totaldist = 0
     distances = {}
     paths = []
-    write_ubers(ubers)
+    ubers = list(ubersr.keys())
+    # write_ubers(ubers)
     for i in range(len(ubers)):
         print(i)
         uber = ubers[i]
@@ -108,7 +109,7 @@ def get_shortestpaths(ubers, stations):
                 for key in distances[uber].keys():
                     if distances[uber][key] == d[i]:
                         if stations[key] > 0:
-                            paths.append([uber, key, get_latlon(uber), get_latlon(key)])
+                            paths.append([uber, key, get_latlon(uber), get_latlon(key), ubersr[uber]])
                             totaldist += d[i]
                             stations[key] -= 1
                             l = False
@@ -123,36 +124,41 @@ def get_shortestpathstime(ubers, day, AM_PM, div):
     return get_shortestpaths(ubers, stations)
 
 def update(day, AM_PM, div):
-    ubers = []
+    ubers = {}
     with open("data/ubers.csv", newline='\n') as file:
         reader = list(csv.reader(file))
-        # print(reader)
+        print(reader)
         for row in reader:
-            if row != ["lat","lon"]:
-                ubers.append(get_node(float(row[0]), float(row[1])))
+            if row != ["uber_id","lat","lon"]:
+                ubers[get_node(float(row[1]), float(row[2]))] = row[0]
     print(ubers)
     return get_shortestpathstime(ubers, day, AM_PM, div)
 
 def update_one(lat, lon, day, AM_PM, div):
-    append_uber(lat, lon)
+    uber_id = append_uber(lat, lon)
+    print(uber_id)
     paths = update(day, AM_PM, div)[0]
-    print(paths)
+    # print(paths)
     for path in paths:
-        if path[2] == [lat,lon]:
+        if str(path[4]) == str(uber_id):
             return path
 
 def write_ubers(ubers):
     with open('data/ubers.csv', 'w') as file:
         writer = csv.writer(file)
-        writer.writerow(["lat","lon"])
+        writer.writerow(["uber_id","lat","lon"])
         for i in range(len(ubers)):
             latlon = get_latlon(ubers[i])
-            writer.writerow([latlon[0], latlon[1]])
+            writer.writerow([i, latlon[0], latlon[1]])
 
 def append_uber(lat, lon):
+    with open('data/ubers.csv', newline='\n') as file:
+        reader = list(csv.reader(file))
+        i = len(reader) - 1
     with open('data/ubers.csv', 'a') as file:
         writer = csv.writer(file)
-        writer.writerow([lat, lon])
+        writer.writerow([i, lat, lon])
+    return i
 
 def dist(x1, y1, x2, y2):
     return math.sqrt((x2-x1) ** 2 + (y2-y1) ** 2)
@@ -271,7 +277,7 @@ net = convert_to_graph("data\\edgesNoKey.csv")
 print(update_one(77.9, -38.1, 'wednesday', 'PM Peak (3pm-7pm)', 10))
 
 # print(get_names())
-# write_ubers(get_random_ubers(40))
+# write_ubers(get_random_ubers(1))
 
 # print(net.nodes)
 # print(nx.dijkstra_path_length(net, 10127575312, 10092398257, weight="w"))
