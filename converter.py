@@ -138,7 +138,7 @@ def update_one(lat, lon, day, AM_PM, div):
     paths = update(day, AM_PM, div)[0]
     print(paths)
     for path in paths:
-        if path[0] == get_node(lat, lon):
+        if get_latlon(path[0]) == [lat,lon]:
             return path
 
 def write_ubers(ubers):
@@ -268,7 +268,7 @@ global net
 net = convert_to_graph("data\\edgesNoKey.csv")
 # print(get_shortestpathstime(get_random_ubers(1), 'wednesday', 'PM Peak (3pm-7pm)', 10))
 # print(update('wednesday', 'PM Peak (3pm-7pm)', 10))
-print(update_one("77.9", "-38.1", 'wednesday', 'PM Peak (3pm-7pm)', 10))
+print(update_one(77.9, -38.1, 'wednesday', 'PM Peak (3pm-7pm)', 10))
 
 # print(get_names())
 # write_ubers(get_random_ubers(40))
