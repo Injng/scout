@@ -24,25 +24,25 @@ A = np.array([[0.2, 0.1, 0],
 def major_eigenvalue(A):
 # print(np.linalg.eigvals(A))
     a = np.linalg.eig(A)
-    b = list(a.eigenvalues)
-    t = list(a.eigenvectors)
+    eigenvalue = list(a.eigenvalues)
+    eigenvector = list(a.eigenvectors)
 
     Index = 0
     nume = len(a)
     for i in range(nume):
-        if ((b[i] -1)* (b[i] -1)<1):
+        if ((eigenvalue[i] -1)* (eigenvalue[i] -1)<1):
             Index = i
 
     majorvector = []
-    leng = len(b)
+    leng = len(eigenvalue)
     for i in range(leng):
-        majorvector.append(t[i][Index])
+        majorvector.append(eigenvector[i][Index])
     return majorvector
 
 def diff_in_potential(Current, ideal):
     diff = []
-    len = len(ideal)
-    for i in range(len):
+    leng = len(ideal)
+    for i in range(leng):
         diff.append(ideal - Current)
     return diff
 
