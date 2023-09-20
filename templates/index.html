@@ -36,7 +36,8 @@
                 data: { 'data': value, 'data2': values },
                 success: function(response) {
                     document.getElementById('output').innerHTML = response;
-                    showMarkers(value, values);
+                    const optimal = response.split(":");
+                    showMarkers(parseFloat(optimal[1]), parseFloat(optimal[0]));
                 },
                 error: function(error) {
                     console.log(error);
