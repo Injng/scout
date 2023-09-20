@@ -1,28 +1,28 @@
 from flask import Flask, render_template, request
+import csv
 
-app = Flask(__name__)
-global loc_data
-loc_data = None
+app = Flask(__name__,template_folder="templates")
 
-@app.route('/')
-def root():
-    location()
-    if loc_data == None:
-        lat = 39
-        lon = -77
-    else:
-        lat = loc_data["lat"]
-        lon = loc_data["lon"]
-    markers = [{
-            'lat': lat,
-            'lon': lon,
-            'popup': 'This is a marker'
-             }]
-    return render_template('index.html', markers=markers)
+@app.route("/")
+def hello():
+    return render_template('index.html')
 
 @app.route('/location', methods=['POST'])
 def location():
-    loc_data = request.get_json()
+    lat = request.form.get("data")
+    lon = request.form.get("data2")
+    with open('data/ubers.csv', 'w') as file:
+        writer = csv.writer(file)
+        writer.writerow(["uber_id", "lat", "lon"])
+        writer.writerow([1, lat, lon]) 
+    return lat + lon
+
+def write_ubers(ubers):
+    with open('data/ubers.csv', 'w') as file:
+        writer = csv.writer(file)
+        writer.writerow(["uber_id","lat", "lon"])
+        for i in range(len(ubers)):
+            writer.writerow([i, ubers[i]])
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=8080, debug=True)
+    app.run(debug=True)

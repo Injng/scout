@@ -1,61 +1,48 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <title>SCOUT</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="crossorigin=""/>
-        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="crossorigin=""></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    </head>
-    <body>
-        <div id="map"></div>
-        <script src="{{ url_for('static', filename='main.js') }}" /></script>
-        <script>
-            {% for marker in markers %}
-            L.marker([{{ marker['lat'] }}, {{ marker['lon'] }}])
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SCOUT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="crossorigin=""></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="{{ url_for('static', filename='main.js') }}" /></script>
+    <button onclick="getLocation()">Send Data</button>
+    <div id="output"></div>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendData);
+            }
+        }
+
+        function showMarkers(lat, lon) {
+            L.marker([lat, lon])
                 .addTo(map)
-                .bindPopup("{{ marker['popup'] }}")
+                .bindPopup("This is a popup")
                 .openPopup();
-            {% endfor %}
-        </script>
+        }
 
-        <button onclick="getLocation()">Get Location</button>
-        <p id="demo"></p>
+        function sendData(position) {
+            var value = position.coords.latitude;
+            var values = position.coords.longitude;
 
-        <script>
-            var x = document.getElementById("demo");
-
-            function getLocation() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(showPosition);
-                } else { 
-                    x.innerHTML = "Geolocation is not supported by this browser.";
+            $.ajax({
+                url: '/location',
+                type: 'POST',
+                data: { 'data': value, 'data2': values },
+                success: function(response) {
+                    document.getElementById('output').innerHTML = response;
+                    showMarkers(value, values);
+                },
+                error: function(error) {
+                    console.log(error);
                 }
-            }
-
-            function showPosition(position) {
-                var lat = position.coords.latitude;
-                var lon = position.coords.longitude;
-
-                x.innerHTML = "Latitude: " + lat + 
-                    "<br>Longitude: " + lon;
-
-                $.ajax({
-                    url: '/location',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ 'lat': lat, 'lon' : lon }),
-                    success: function(response) {
-                        console.log(response);
-                    },
-                    error: function(error) {
-                        console.log(error);
-                    }
-                });
-            }
-        </script>
-
-    </body>
+            });
+        }
+    </script>
+</body>
 </html>
