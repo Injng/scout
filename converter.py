@@ -65,7 +65,8 @@ def need_for_each_station(day, AM_PM):#the day is a string monday, tuesday ... t
             r .append(i[5])
             need = int(i[-1])-int(i[-2])
             r.append(need)
-        ret.append(r)
+        if (len(r) != 0):
+            ret.append(r)
     print(ret)
     return ret
 
