@@ -1,3 +1,5 @@
+import math
+
 import networkx as nx
 import csv
 import numpy as np
@@ -14,33 +16,18 @@ def convertToGraph(filepath):
     return net
 
 net = convertToGraph("data\\edgesNoKey.csv")
-# print([i for i in net.neighbors(49724252)])
-
-# Define a matrix
-# A = np.array([[1, 2, 3],
-#               [4, 5, 6],
-#               [7, 8, 9]])
-
-A = np.array([[0.2, 0.1],
-             [0.8, 0.9]])
-
-B = np.array([[1,0],
-              [0,1]])
 
 
-C = np.subtract(A,B)
-print(C)
-D = [-C[0][1], C[0][0]];
-print(D)
-# Perform SVD
-U, S, V = np.linalg.svd(A)
-
-# U, S, and V are the factorized matrices
-print("U:")
-print(U)
-
-print("\nS:")
-print(S)
-
-print("\nV:")
-print(V)
+A = np.array([[0.2, 0.1, 0],
+             [0.8, 0.9, 0.1],
+              [0, 0, 0.9]])
+def major_eigenvalue(A):
+# print(np.linalg.eigvals(A))
+    c = A.length
+    a = np.linalg.eig(A)
+    b = a.eigenvalues
+    Index = a.index(1)
+    majorvector = []
+    for i in range(c):
+        majorvector[i] = b[i][Index]
+    return majorvector;
