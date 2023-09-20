@@ -60,6 +60,7 @@ def get_stats(day, AM_PM):
     trains = {}
     for code in codes:
         trains[code] = 5
+
     need = need_for_each_station(day, AM_PM)
     for i in trains.keys():
         # print(i)
@@ -83,11 +84,11 @@ def convert_to_graph(filepath):
     return net
 
 # takes a list of ubers and a dictionary of stations with the node id being the key and the value being the number of ubers needed
-def get_shortestpaths(ubers, stations, net):
+def get_shortestpaths(ubers, stations):
     totaldist = 0
     distances = {}
     paths = []
-    write_ubers(ubers, net)
+    write_ubers(ubers)
     for i in range(len(ubers)):
         print(i)
         uber = ubers[i]
@@ -107,41 +108,57 @@ def get_shortestpaths(ubers, stations, net):
                 for key in distances[uber].keys():
                     if distances[uber][key] == d[i]:
                         if stations[key] > 0:
-                            paths.append([uber, key, get_latlon(uber, net), get_latlon(key, net)])
+                            paths.append([uber, key, get_latlon(uber), get_latlon(key)])
                             totaldist += d[i]
                             stations[key] -= 1
                             l = False
                         break
     return [paths, totaldist]
 
-def get_shortestpathstime(ubers, day, AM_PM, div, net):
+def get_shortestpathstime(ubers, day, AM_PM, div):
     stats = get_stats(day, AM_PM)
     stations = {}
     for i in stats.keys():
         stations[stationsfinal[codes.index(i)]] = stats[i] // div
-    return get_shortestpaths(ubers, stations, net)
+    return get_shortestpaths(ubers, stations)
 
-def update(day, AM_PM, div, net):
+def update(day, AM_PM, div):
     ubers = []
     with open("data/ubers.csv", newline='\n') as file:
-        print(reader)
+        reader = list(csv.reader(file))
+        # print(reader)
         for row in reader:
-            if row != ["uber_id","lat","lon"]:
-                ubers.append(get_node(float(row[1]), float(row[2]), net))
-    return get_shortestpathstime(ubers, day, AM_PM, div, net)
+            if row != ["lat","lon"]:
+                ubers.append(get_node(float(row[0]), float(row[1])))
+    print(ubers)
+    return get_shortestpathstime(ubers, day, AM_PM, div)
 
-def write_ubers(ubers, net):
+def update_one(lat, lon, day, AM_PM, div):
+    append_uber(lat, lon)
+    paths = update(day, AM_PM, div)
+    paths.pop()
+    print(paths)
+    for path in paths:
+        if path[0] == get_node(lat, lon):
+            return path
+
+def write_ubers(ubers):
     with open('data/ubers.csv', 'w') as file:
         writer = csv.writer(file)
-        writer.writerow(["uber_id","lat","lon"])
+        writer.writerow(["lat","lon"])
         for i in range(len(ubers)):
-            latlon = get_latlon(ubers[i], net)
-            writer.writerow([i, latlon[0], latlon[1]])
+            latlon = get_latlon(ubers[i])
+            writer.writerow([latlon[0], latlon[1]])
+
+def append_uber(lat, lon):
+    with open('data/ubers.csv', 'a') as file:
+        writer = csv.writer(file)
+        writer.writerow([lat, lon])
 
 def dist(x1, y1, x2, y2):
     return math.sqrt((x2-x1) ** 2 + (y2-y1) ** 2)
 
-def get_latlon(node, net):
+def get_latlon(node):
     try:
         edge = list(net.out_edges(node))[0]
         edge += (0,)
@@ -163,24 +180,24 @@ def get_latlon(node, net):
         if con["dir"] == -1:
             return [float(spl[len(spl)-2]), float(spl[len(spl)-1][:len(spl[len(spl)-1])-1])]
 
-def get_node(lat, lon, net):
+def get_node(lat, lon):
     lowest_dist = -1
     right = -1
     for node in net.nodes:
-        latlon = get_latlon(node, net)
+        latlon = get_latlon(node)
         d = dist(lat, lon, latlon[0], latlon[1])
         if lowest_dist == -1 or d < lowest_dist:
             lowest_dist = d
             right = node
     return right
 
-def get_stations(latlons, net):
+def get_stations(latlons):
     stations = []
     for i in latlons:
-        stations.append(get_node(i[1], i[0], net))
+        stations.append(get_node(i[1], i[0]))
     return stations
 
-def get_random_ubers(num, net):
+def get_random_ubers(num):
     return random.sample(list(net.nodes), num)
 
 def convertToGraph(filepath):
@@ -248,23 +265,25 @@ def need_for_each_station(day, AM_PM):#the day is a string monday, tuesday ... t
 # print(need_for_each_station('monday','PM Peak (3pm-7pm)'))
 # print(get_stats('monday','PM Peak (3pm-7pm)'))
 
+global net
 net = convert_to_graph("data\\edgesNoKey.csv")
-print(get_shortestpathstime(get_random_ubers(1, net), 'wednesday', 'PM Peak (3pm-7pm)', 10, net))
-print(update('wednesday', 'PM Peak (3pm-7pm)', 10, net))
+# print(get_shortestpathstime(get_random_ubers(1), 'wednesday', 'PM Peak (3pm-7pm)', 10))
+# print(update('wednesday', 'PM Peak (3pm-7pm)', 10))
+print(update_one("77.9", "-38.1", 'wednesday', 'PM Peak (3pm-7pm)', 10))
 
 # print(get_names())
-# write_ubers(get_random_ubers(120, net))
+# write_ubers(get_random_ubers(40))
 
 # print(net.nodes)
 # print(nx.dijkstra_path_length(net, 10127575312, 10092398257, weight="w"))
-# print(getShortestPaths([10127575312,10127575312,10127575312,4788602122, 4643843108, 49751367, 10092398257, 10979910220], {10070536261: 3, 10127575312:3}, net))
+# print(getShortestPaths([10127575312,10127575312,10127575312,4788602122, 4643843108, 49751367, 10092398257, 10979910220], {10070536261: 3, 10127575312:3}))
 # print([i for i in net.neighbors(49724252)])
-# print(get_latlon(6799231643, net))
-# print(get_node(-77.1, 38.9, net))
-# print(get_latlon(get_node(-77.1,38.9, net), net))
-# print(get_stations([[38.898303, -77.028099], [38.903192, -77.039766], [38.909499, -77.04362], [38.924999, -77.052648], [38.934703, -77.058226], [38.94362, -77.063511], [38.947808, -77.079615], [38.960744, -77.085969], [38.984282, -77.094431], [38.999947, -77.097253], [39.029158, -77.10415], [39.048043, -77.113131], [39.062359, -77.121113], [39.084215, -77.146424], [39.119819, -77.164921], [38.89834, -77.021851], [38.896084, -77.016643], [38.897723, -77.006745], [38.920741, -76.995984], [38.933234, -76.994544], [38.951777, -77.002174], [38.975532, -77.017834], [38.993841, -77.031321], [39.015413, -77.042953], [39.038558, -77.051098], [39.061713, -77.05341], [38.907407, -77.002961], [38.898303, -77.028099], [38.901316, -77.033652], [38.901311, -77.03981], [38.900599, -77.050273], [38.896595, -77.07146], [38.884574, -77.063108], [38.869349, -77.054013], [38.863045, -77.059507], [38.85779, -77.050589], [38.852985, -77.043805], [38.83108, -77.04644], [38.814009, -77.053763], [38.806474, -77.061115], [38.800313, -77.071173], [38.793841, -77.075301], [38.893757, -77.028218], [38.888022, -77.028232], [38.884775, -77.021964], [38.884958, -77.01586], [38.884968, -77.005137], [38.884124, -76.995334], [38.880841, -76.985721], [38.88594, -76.977485], [38.898284, -76.948042], [38.907734, -76.936177], [38.91652, -76.915427], [38.934411, -76.890988], [38.947674, -76.872144], [38.905604, -77.022256], [38.912919, -77.022194], [38.916489, -77.028938], [38.928672, -77.032775], [38.936077, -77.024728], [38.951777, -77.002174], [38.954931, -76.969881], [38.965276, -76.956182], [38.978523, -76.928432], [39.011036, -76.911362], [38.89834, -77.021851], [38.893893, -77.021902], [38.884775, -77.021964], [38.876221, -77.017491], [38.876588, -77.005086], [38.862072, -76.995648], [38.845334, -76.98817], [38.840974, -76.97536], [38.851187, -76.956565], [38.843891, -76.932022], [38.826995, -76.912134], [38.890488, -76.938291], [38.889757, -76.913382], [38.886713, -76.893592], [38.8913, -76.8682], [38.9008, -76.8449], [38.799193, -77.129407], [38.766129, -77.168797], [38.891499, -77.08391], [38.886373, -77.096963], [38.88331, -77.104267], [38.882071, -77.111845], [38.885841, -77.157177], [38.90067, -77.189394], [38.883015, -77.228939], [38.877693, -77.271562], [38.924478, -77.210167], [38.920056, -77.223314], [38.919749, -77.235192], [38.929273, -77.241988], [38.947753, -77.340179], [38.952768, -77.360185], [38.952821, -77.385178], [38.960758, -77.415295], [38.955784, -77.448148], [38.99204, -77.460685], [39.005283, -77.491537]], net))
+# print(get_latlon(6799231643))
+# print(get_node(-77.1, 38.9))
+# print(get_latlon(get_node(-77.1,38.9)))
+# print(get_stations([[38.898303, -77.028099], [38.903192, -77.039766], [38.909499, -77.04362], [38.924999, -77.052648], [38.934703, -77.058226], [38.94362, -77.063511], [38.947808, -77.079615], [38.960744, -77.085969], [38.984282, -77.094431], [38.999947, -77.097253], [39.029158, -77.10415], [39.048043, -77.113131], [39.062359, -77.121113], [39.084215, -77.146424], [39.119819, -77.164921], [38.89834, -77.021851], [38.896084, -77.016643], [38.897723, -77.006745], [38.920741, -76.995984], [38.933234, -76.994544], [38.951777, -77.002174], [38.975532, -77.017834], [38.993841, -77.031321], [39.015413, -77.042953], [39.038558, -77.051098], [39.061713, -77.05341], [38.907407, -77.002961], [38.898303, -77.028099], [38.901316, -77.033652], [38.901311, -77.03981], [38.900599, -77.050273], [38.896595, -77.07146], [38.884574, -77.063108], [38.869349, -77.054013], [38.863045, -77.059507], [38.85779, -77.050589], [38.852985, -77.043805], [38.83108, -77.04644], [38.814009, -77.053763], [38.806474, -77.061115], [38.800313, -77.071173], [38.793841, -77.075301], [38.893757, -77.028218], [38.888022, -77.028232], [38.884775, -77.021964], [38.884958, -77.01586], [38.884968, -77.005137], [38.884124, -76.995334], [38.880841, -76.985721], [38.88594, -76.977485], [38.898284, -76.948042], [38.907734, -76.936177], [38.91652, -76.915427], [38.934411, -76.890988], [38.947674, -76.872144], [38.905604, -77.022256], [38.912919, -77.022194], [38.916489, -77.028938], [38.928672, -77.032775], [38.936077, -77.024728], [38.951777, -77.002174], [38.954931, -76.969881], [38.965276, -76.956182], [38.978523, -76.928432], [39.011036, -76.911362], [38.89834, -77.021851], [38.893893, -77.021902], [38.884775, -77.021964], [38.876221, -77.017491], [38.876588, -77.005086], [38.862072, -76.995648], [38.845334, -76.98817], [38.840974, -76.97536], [38.851187, -76.956565], [38.843891, -76.932022], [38.826995, -76.912134], [38.890488, -76.938291], [38.889757, -76.913382], [38.886713, -76.893592], [38.8913, -76.8682], [38.9008, -76.8449], [38.799193, -77.129407], [38.766129, -77.168797], [38.891499, -77.08391], [38.886373, -77.096963], [38.88331, -77.104267], [38.882071, -77.111845], [38.885841, -77.157177], [38.90067, -77.189394], [38.883015, -77.228939], [38.877693, -77.271562], [38.924478, -77.210167], [38.920056, -77.223314], [38.919749, -77.235192], [38.929273, -77.241988], [38.947753, -77.340179], [38.952768, -77.360185], [38.952821, -77.385178], [38.960758, -77.415295], [38.955784, -77.448148], [38.99204, -77.460685], [39.005283, -77.491537]]))
 
 """stats = {}
 for i in stationsfinal:
     stats[i]=1
-print(get_shortestpaths(get_random_ubers(120, net), stats, net))"""
+print(get_shortestpaths(get_random_ubers(120), stats))"""
