@@ -138,7 +138,7 @@ def update_one(lat, lon, day, AM_PM, div):
     paths = update(day, AM_PM, div)[0]
     print(paths)
     for path in paths:
-        if get_latlon(path[0]) == [lat,lon]:
+        if path[2] == [lat,lon]:
             return path
 
 def write_ubers(ubers):
