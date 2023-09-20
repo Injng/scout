@@ -40,4 +40,16 @@ def get_station(id):
     station_info = station_info.json()
     return [float(station_info["Lat"]), float(station_info["Lon"])]
 
-# print(get_station("A01"))
+# Given a station ID (id), return a string for the station name
+def get_name(id):
+    station_name = requests.get(f"https://api.wmata.com/Rail.svc/json/jStationInfo?StationCode={id}", headers={"api_key" : API_KEY})
+
+    if station_name.status_code == 200:
+        pass
+    else:
+        raise ValueError("The URL is invalid")
+
+    station_name = station_name.json()
+    return station_name["Name"]
+
+# print(get_name("A01"))
