@@ -43,25 +43,25 @@ def get_name(id):
     return station_name["Name"]
 
 def get_trains():
-	out = {}
-	for i in codes:
-		print(i)
-		out[i] = len(get_train(i))
-	return out
+    out = {}
+    for i in codes:
+        print(i)
+        out[i] = len(get_train(i))
+    return out
 
 def get_stats(day, AM_PM):
-	stats = {}
-	trains = get_trains()
-	need = need_for_each_station(day, AM_PM)
-	for i in trains.keys():
-		print(i)
-		singleneed = 0
-		name = get_name(i)
-		for j in need:
-			if j[0] == name:
-				singleneed = j[1]
-		stats[i] = singleneed * trains[i] // 60
-	return stats
+    stats = {}
+    trains = get_trains()
+    need = need_for_each_station(day, AM_PM)
+    for i in trains.keys():
+        print(i)
+        singleneed = 0
+        name = get_name(i)
+        for j in need:
+            if j[0] == name:
+                singleneed = j[1]
+        stats[i] = singleneed * trains[i] // 60
+    return stats
 
 def convert_to_graph(filepath):
     net = nx.MultiDiGraph()
@@ -76,86 +76,94 @@ def convert_to_graph(filepath):
 
 # takes a list of ubers and a dictionary of stations with the node id being the key and the value being the number of ubers needed
 def get_shortestpaths(ubers, stations, net):
-	totaldist = 0
-	distances = {}
-	paths = []
-	for i in range(len(ubers)):
-		print(i)
-		uber = ubers[i]
-		uber_distances = {}
-		for station in stations.keys():
-			try:
-				uber_distances[station] = nx.dijkstra_path_length(net, uber, station, weight="w")
-			except:
-				uber_distances[station] = -1
-		distances[uber] = uber_distances
-	for uber in ubers:
-		d = [distances[uber][i] for i in distances[uber].keys()]
-		d.sort()
-		l = True
-		for i in range(len(d)):
-			if l and d[i] > -1:
-				for key in distances[uber].keys():
-					if distances[uber][key] == d[i]:
-						if stations[key] > 0:
-							paths.append([uber, key])
-							totaldist += d[i]
-							stations[key] -= 1
-							l = False
-						break
-	return [paths, totaldist]
+    totaldist = 0
+    distances = {}
+    paths = []
+    write_ubers(ubers)
+    for i in range(len(ubers)):
+        print(i)
+        uber = ubers[i]
+        uber_distances = {}
+        for station in stations.keys():
+            try:
+                uber_distances[station] = nx.dijkstra_path_length(net, uber, station, weight="w")
+            except:
+                uber_distances[station] = -1
+        distances[uber] = uber_distances
+    for uber in ubers:
+        d = [distances[uber][i] for i in distances[uber].keys()]
+        d.sort()
+        l = True
+        for i in range(len(d)):
+            if l and d[i] > -1:
+                for key in distances[uber].keys():
+                    if distances[uber][key] == d[i]:
+                        if stations[key] > 0:
+                            paths.append([uber, key])
+                            totaldist += d[i]
+                            stations[key] -= 1
+                            l = False
+                        break
+    return [paths, totaldist]
 
 def get_shortestpathstime(ubers, day, AM_PM, div, net):
-	stats = get_stats(day, AM_PM)
-	stations = {}
-	for i in stats.keys():
-		stations[stationsfinal[codes.index(i)]] = stats[i] // div
-	return get_shortestpaths(ubers, stations, net)
+    stats = get_stats(day, AM_PM)
+    stations = {}
+    for i in stats.keys():
+        stations[stationsfinal[codes.index(i)]] = stats[i] // div
+    return get_shortestpaths(ubers, stations, net)
+
+def write_ubers(ubers):
+    with open('data\\ubers.csv', 'w') as file:
+        writer = csv.writer(file)
+        writer.writerow(["uber_id","uber_node"])
+        for i in range(len(ubers)):
+            writer.writerow([i, ubers[i]])
 
 def dist(x1, y1, x2, y2):
-	return math.sqrt((x2-x1) ** 2 + (y2-y1) ** 2)
+    return math.sqrt((x2-x1) ** 2 + (y2-y1) ** 2)
 
 def get_latlon(node, net):
-	try:
-		edge = list(net.out_edges(node))[0]
-		edge += (0,)
-		con = net.edges[edge]
-		wkt = con["wkt"]
-		spl = wkt.split(" ")
-		if con["dir"] == 1:
-			return [float(spl[0][11:]), float(spl[1][:len(spl[1])-1])]
-		if con["dir"] == -1:
-			return [float(spl[len(spl)-2]), float(spl[len(spl)-1][:len(spl[len(spl)-1])-1])]
-	except:
-		edge = list(net.in_edges(node))[0]
-		edge += (0,)
-		con = net.edges[edge]
-		wkt = con["wkt"]
-		spl = wkt.split(" ")
-		if con["dir"] == 1:
-			return [float(spl[0][11:]), float(spl[1][:len(spl[1])-1])]
-		if con["dir"] == -1:
-			return [float(spl[len(spl)-2]), float(spl[len(spl)-1][:len(spl[len(spl)-1])-1])]
+    try:
+        edge = list(net.out_edges(node))[0]
+        edge += (0,)
+        con = net.edges[edge]
+        wkt = con["wkt"]
+        spl = wkt.split(" ")
+        if con["dir"] == 1:
+            return [float(spl[0][11:]), float(spl[1][:len(spl[1])-1])]
+        if con["dir"] == -1:
+            return [float(spl[len(spl)-2]), float(spl[len(spl)-1][:len(spl[len(spl)-1])-1])]
+    except:
+        edge = list(net.in_edges(node))[0]
+        edge += (0,)
+        con = net.edges[edge]
+        wkt = con["wkt"]
+        spl = wkt.split(" ")
+        if con["dir"] == 1:
+            return [float(spl[0][11:]), float(spl[1][:len(spl[1])-1])]
+        if con["dir"] == -1:
+            return [float(spl[len(spl)-2]), float(spl[len(spl)-1][:len(spl[len(spl)-1])-1])]
 
 def get_node(lat, lon, net):
-	lowest_dist = -1
-	right = -1
-	for node in net.nodes:
-		latlon = get_latlon(node, net)
-		d = dist(lat, lon, latlon[0], latlon[1])
-		if lowest_dist == -1 or d < lowest_dist:
-			lowest_dist = d
-			right = node
-	return right
+    lowest_dist = -1
+    right = -1
+    for node in net.nodes:
+        latlon = get_latlon(node, net)
+        d = dist(lat, lon, latlon[0], latlon[1])
+        if lowest_dist == -1 or d < lowest_dist:
+            lowest_dist = d
+            right = node
+    return right
 
 def get_stations(latlons, net):
-	stations = []
-	for i in latlons:
-		stations.append(get_node(i[1], i[0], net))
-	return stations
+    stations = []
+    for i in latlons:
+        stations.append(get_node(i[1], i[0], net))
+    return stations
 
 def get_random_ubers(num, net):
-	return random.sample(list(net.nodes), num)
+    return random.sample(list(net.nodes), num)
 
 def convertToGraph(filepath):
     net = nx.MultiDiGraph()
@@ -223,7 +231,9 @@ def need_for_each_station(day, AM_PM):#the day is a string monday, tuesday ... t
 # print(get_stats('monday','PM Peak (3pm-7pm)'))
 
 net = convert_to_graph("data\\edgesNoKey.csv")
-print(get_shortestpathstime(get_random_ubers(120, net), 'monday', 'PM Peak (3pm-7pm)', net))
+# print(get_shortestpathstime(get_random_ubers(120, net), 'monday', 'PM Peak (3pm-7pm)', net))
+
+write_ubers(get_random_ubers(120, net))
 
 # print(net.nodes)
 # print(nx.dijkstra_path_length(net, 10127575312, 10092398257, weight="w"))
@@ -236,5 +246,5 @@ print(get_shortestpathstime(get_random_ubers(120, net), 'monday', 'PM Peak (3pm-
 
 """stats = {}
 for i in stationsfinal:
-	stats[i]=1
+    stats[i]=1
 print(get_shortestpaths(get_random_ubers(120, net), stats, net))"""
