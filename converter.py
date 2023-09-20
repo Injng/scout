@@ -135,8 +135,7 @@ def update(day, AM_PM, div):
 
 def update_one(lat, lon, day, AM_PM, div):
     append_uber(lat, lon)
-    paths = update(day, AM_PM, div)
-    paths.pop()
+    paths = update(day, AM_PM, div)[0]
     print(paths)
     for path in paths:
         if path[0] == get_node(lat, lon):
