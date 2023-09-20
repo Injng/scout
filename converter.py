@@ -80,8 +80,8 @@ net = convert_to_graph("data\\edgesNoKey.csv")
 # print(getShortestPaths([10127575312,10127575312,10127575312,4788602122, 4643843108, 49751367, 10092398257, 10979910220], {10070536261: 3, 10127575312:3}, net))
 # print([i for i in net.neighbors(49724252)])
 # print(get_latlon(6799231643, net))
-print(get_node(-77.0545830,38.9853795, net))
-print(get_latlon(get_node(-77.0545830,38.9853795, net), net))
+print(get_node(-77.1, 38.9, net))
+print(get_latlon(get_node(-77.1,38.9, net), net))
 
 
 # Define a matrix
