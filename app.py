@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request
 
 app = Flask(__name__)
-
+global loc_data
+loc_data = None
 
 @app.route('/')
 def root():
-    loc_data = location()
+    location()
     if loc_data == None:
         lat = 39
         lon = -77
@@ -22,10 +23,6 @@ def root():
 @app.route('/location', methods=['POST'])
 def location():
     loc_data = request.get_json()
-    try:
-        return loc_data
-    except:
-        return {}
 
 if __name__ == '__main__':
     app.run(host="localhost", port=8080, debug=True)
