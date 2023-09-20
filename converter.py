@@ -1,5 +1,4 @@
 import math
-
 import networkx as nx
 import csv
 import numpy as np
@@ -17,12 +16,11 @@ def convertToGraph(filepath):
 
 net = convertToGraph("data\\edgesNoKey.csv")
 
-
 A = np.array([[0.2, 0.1, 0],
              [0.8, 0.9, 0.1],
               [0, 0, 0.9]])
+
 def major_eigenvalue(A):
-# print(np.linalg.eigvals(A))
     a = np.linalg.eig(A)
     eigenvalue = list(a.eigenvalues)
     eigenvector = list(a.eigenvectors)
@@ -30,7 +28,7 @@ def major_eigenvalue(A):
     Index = 0
     nume = len(a)
     for i in range(nume):
-        if ((eigenvalue[i] -1)* (eigenvalue[i] -1)<1):
+        if ((eigenvalue[i] -1) * (eigenvalue[i] -1) < 1):
             Index = i
 
     majorvector = []
@@ -54,23 +52,21 @@ def read_csv_file(file_path):
             list.append(row)
             # print(row)
         return list
-# Example usage:
-def need_for_each_station(day, AM_PM):#the day is a string monday, tuesday ... time is PM Peak, AM Peak, Evening, Midday
+
+# the day is a string monday, tuesday ... time is PM Peak, AM Peak, Evening, Midday
+def need_for_each_station(day, AM_PM):    
     file_path = 'data/' + day + '_exits.csv'  # Replace with the path to your CSV file
     list = read_csv_file(file_path)
-    ret =[]
+    ret = []
     for i in list:
         r = []
         if (i[6] == AM_PM):
             r .append(i[5])
-            need = int(i[-1])-int(i[-2])
+            need = int(i[-1]) - int(i[-2])
             r.append(need)
         if (len(r) != 0):
             ret.append(r)
     print(ret)
     return ret
-
-
-
 
 need_for_each_station('monday','PM Peak (3pm-7pm)')
