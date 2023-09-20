@@ -84,13 +84,12 @@ def convert_to_graph(filepath):
     return net
 
 # takes a list of ubers and a dictionary of stations with the node id being the key and the value being the number of ubers needed
-def get_shortestpaths(ubersr, stations):
+def get_shortestpaths(ubers, stations):
     totaldist = 0
     distances = {}
     paths = []
-    ubers = list(ubersr.keys())
     # write_ubers(ubers)
-    for i in range(len(ubers)):
+    for i in ubers.keys():
         print(i)
         uber = ubers[i]
         uber_distances = {}
@@ -100,7 +99,8 @@ def get_shortestpaths(ubersr, stations):
             except:
                 uber_distances[station] = -1
         distances[uber] = uber_distances
-    for uber in ubers:
+    for uber_id in ubers.keys():
+        uber = ubers[uber_id]
         d = [distances[uber][i] for i in distances[uber].keys()]
         d.sort()
         l = True
@@ -109,7 +109,7 @@ def get_shortestpaths(ubersr, stations):
                 for key in distances[uber].keys():
                     if distances[uber][key] == d[i]:
                         if stations[key] > 0:
-                            paths.append([uber, key, get_latlon(uber), get_latlon(key), ubersr[uber]])
+                            paths.append([uber, key, get_latlon(uber), get_latlon(key), uber_id])
                             totaldist += d[i]
                             stations[key] -= 1
                             l = False
@@ -130,7 +130,7 @@ def update(day, AM_PM, div):
         print(reader)
         for row in reader:
             if row != ["uber_id","lat","lon"]:
-                ubers[get_node(float(row[1]), float(row[2]))] = row[0]
+                ubers[row[0]] = get_node(float(row[1]), float(row[2]))
     print(ubers)
     return get_shortestpathstime(ubers, day, AM_PM, div)
 
@@ -277,7 +277,7 @@ net = convert_to_graph("data\\edgesNoKey.csv")
 print(update_one(77.9, -38.1, 'wednesday', 'PM Peak (3pm-7pm)', 10))
 
 # print(get_names())
-# write_ubers(get_random_ubers(1))
+# write_ubers(get_random_ubers(5))
 
 # print(net.nodes)
 # print(nx.dijkstra_path_length(net, 10127575312, 10092398257, weight="w"))
