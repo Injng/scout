@@ -46,5 +46,12 @@ def diff_in_potential(Current, ideal):
         diff.append(ideal - Current)
     return diff
 
+def read_csv_file(file_path):
+    with open(file_path, 'r') as file:
+        csv_reader = csv.reader(file)
+        for row in csv_reader:
+            print(row)
 
-
+# Example usage:
+file_path = 'example.csv'  # Replace with the path to your CSV file
+read_csv_file(file_path)
