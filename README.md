@@ -9,3 +9,6 @@ To run the application, run the `app.py` file with the following:
 ```
 python3 app.py
 ```
+## Using
+In the interface, click the "Send Data" button to send location data and receive the optimal location for an Uber.
+To simulate more Ubers, edit the `data/ubers.csv` file by adding an index, latitude, and longitude for the Uber location.
